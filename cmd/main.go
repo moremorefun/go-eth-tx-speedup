@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ethereum/go-ethereum/rlp"
+
 	"github.com/parnurzeal/gorequest"
 
 	"github.com/ethereum/go-ethereum/crypto"
@@ -230,9 +232,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("sign tx err: %s", err.Error())
 	}
-	ts := types.Transactions{signedTx}
-	rawTxBytes := ts.GetRlp(0)
-	rawTxHex := hexutil.Encode(rawTxBytes)
+	ts, err := rlp.EncodeToBytes(signedTx)
+	if err != nil {
+		log.Fatalf("err encode tx: %s", err.Error())
+	}
+	rawTxHex := hexutil.Encode(ts)
 	txHash := strings.ToLower(signedTx.Hash().Hex())
 	log.Printf("tx: %s\n hex:\n%s\n", txHash, rawTxHex)
 	sendTxID, err := EthRpcSendRawTransaction(*rpcURI, rawTxHex)
