@@ -165,6 +165,7 @@ func main() {
 	var sourceKey = flag.String("key", "", "eth address private key")
 	var oldTxID = flag.String("txid", "", "txid to speed up")
 	var gas = flag.Int64("gas", 10, "gas price value in gwei")
+	var newGasLimit = flag.Uint64("limit", 0, "gas limit of tx\ndefault is 0, when limit is 0, it will keep the old gas limit in the original tx")
 	var h = flag.Bool("h", false, "help message")
 	flag.Parse()
 	if *h {
@@ -194,9 +195,12 @@ func main() {
 			log.Fatalf("input decode err: %s", err.Error())
 		}
 	}
-	gasLimit, err := hexutil.DecodeBig(rpcTx.Gas)
+	gasLimit, err := hexutil.DecodeUint64(rpcTx.Gas)
 	if err != nil {
 		log.Fatalf("error gas limit: %s", rpcTx.Gas)
+	}
+	if gasLimit < *newGasLimit {
+		gasLimit = *newGasLimit
 	}
 	nonce, err := hexutil.DecodeUint64(rpcTx.Nonce)
 	if err != nil {
@@ -216,7 +220,7 @@ func main() {
 		nonce,
 		common.HexToAddress(rpcTx.To),
 		value,
-		uint64(gasLimit.Int64()),
+		gasLimit,
 		gasPrice,
 		inputBs,
 	)

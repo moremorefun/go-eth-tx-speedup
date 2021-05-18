@@ -31,6 +31,9 @@ Usage of ./gomysql2struct:
   -h	help message
   -key string
     	eth address private key
+  -limit uint
+    	gas limit of tx
+    	default is 0, when limit is 0, it will keep the old gas limit in the original tx
   -swap string
     	rpc uri of eth
   -txid string
